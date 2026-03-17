@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Secret Domain History Filter",
-  "version": "1.1",
+  "name": "History Filter",
+  "version": "1.0",
   "description": "설정한 특정 도메인의 검색 및 방문 기록을 브라우저에 남기지 않습니다.",
   "permissions": [
     "history",
