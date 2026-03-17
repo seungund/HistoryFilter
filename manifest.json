@@ -1,14 +1,24 @@
 {
   "manifest_version": 3,
-  "name": "History Filter",
-  "version": "1.0",
+  "name": "Secret Domain History Filter",
+  "version": "1.1",
   "description": "설정한 특정 도메인의 검색 및 방문 기록을 브라우저에 남기지 않습니다.",
   "permissions": [
     "history",
     "storage"
   ],
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
   },
   "background": {
     "service_worker": "background.js"

@@ -2,10 +2,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const domainInput = document.getElementById('domainInput');
   const addBtn = document.getElementById('addBtn');
   const domainList = document.getElementById('domainList');
+  const toggleSwitch = document.getElementById('toggleSwitch'); // 스위치 요소 가져오기
 
-  // 1. 크롬 저장소에서 도메인 목록 불러와서 화면에 그리기
-  function loadDomains() {
-    chrome.storage.local.get({ blockedDomains: [] }, (result) => {
+  // 1. 초기 상태 불러오기 (스위치 상태 및 도메인 목록)
+  function loadInitialState() {
+    // isEnabled의 기본값을 true(켜짐)로 설정합니다.
+    chrome.storage.local.get({ blockedDomains: [], isEnabled: true }, (result) => {
+      // 스위치 상태 반영
+      toggleSwitch.checked = result.isEnabled;
+      
+      // 도메인 목록 그리기
       domainList.innerHTML = '';
       result.blockedDomains.forEach(domain => {
         const li = document.createElement('li');
@@ -22,19 +28,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 2. 도메인 추가하기
+  // 2. 스위치 토글 시 상태 저장하기
+  toggleSwitch.addEventListener('change', (e) => {
+    chrome.storage.local.set({ isEnabled: e.target.checked });
+  });
+
+  // 3. 도메인 추가하기
   function addDomain() {
-    // 입력값을 소문자로 변환하고 앞뒤 공백 제거
     const newDomain = domainInput.value.trim().toLowerCase();
     if (newDomain) {
       chrome.storage.local.get({ blockedDomains: [] }, (result) => {
         const domains = result.blockedDomains;
         if (!domains.includes(newDomain)) {
           domains.push(newDomain);
-          // 변경된 목록을 저장소에 업데이트
           chrome.storage.local.set({ blockedDomains: domains }, () => {
             domainInput.value = '';
-            loadDomains(); // 화면 새로고침
+            loadInitialState();
           });
         } else {
           alert('이미 추가된 도메인입니다.');
@@ -43,22 +52,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 3. 도메인 삭제하기
+  // 4. 도메인 삭제하기
   function removeDomain(domainToRemove) {
     chrome.storage.local.get({ blockedDomains: [] }, (result) => {
       const domains = result.blockedDomains.filter(domain => domain !== domainToRemove);
       chrome.storage.local.set({ blockedDomains: domains }, () => {
-        loadDomains(); // 화면 새로고침
+        loadInitialState();
       });
     });
   }
 
-  // 이벤트 리스너 등록
   addBtn.addEventListener('click', addDomain);
   domainInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') addDomain();
   });
 
-  // 팝업이 열릴 때 최초 1회 목록 불러오기
-  loadDomains();
+  // 실행 시 초기 상태 로드
+  loadInitialState();
 });

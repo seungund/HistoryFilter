@@ -2,11 +2,15 @@ chrome.history.onVisited.addListener((historyItem) => {
   try {
     const visitedUrl = new URL(historyItem.url);
     
-    // 방문 기록이 생길 때마다 크롬 로컬 저장소에서 차단 목록을 가져옵니다.
-    chrome.storage.local.get({ blockedDomains: [] }, (result) => {
-      const domains = result.blockedDomains;
+    // 저장소에서 도메인 목록과 스위치 상태(isEnabled)를 함께 가져옵니다.
+    chrome.storage.local.get({ blockedDomains: [], isEnabled: true }, (result) => {
       
-      // 현재 URL에 차단 목록에 있는 도메인이 포함되어 있는지 확인합니다.
+      // 스위치가 꺼져있으면(false) 아무 작업도 하지 않고 종료합니다.
+      if (!result.isEnabled) {
+        return;
+      }
+      
+      const domains = result.blockedDomains;
       const isBlocked = domains.some(domain => visitedUrl.hostname.includes(domain));
 
       if (isBlocked) {
